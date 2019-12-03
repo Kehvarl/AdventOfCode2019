@@ -23,7 +23,7 @@ def path_parser(path_string):
 
 
 def grid(x1, y1, x2, y2):
-    return [["." for _ in range(abs(y1 - y2) + 2)] for _ in range(abs(x1 - x2) + 2)]
+    return [["." for _ in range(abs(x1 - x2) + 2)] for _ in range(abs(y1 - y2) + 2)]
 
 
 def draw(g, p1, p2):
@@ -32,19 +32,20 @@ def draw(g, p1, p2):
     if x1 != x2:
         g[x1][y1] = "+"
         g[x2][y1] = "+"
-        for x in range(x1 + 1, x2):
+        for x in range(min(x1, x2) + 1, max(x1, x2)):
             if g[x][y1] == ".":
-                g[x][y1] = "-"
+                g[x][y1] = "|"
             else:
                 g[x][y1] = "X"
     else:
         g[x1][y1] = "+"
         g[x1][y2] = "+"
-    for y in range(y1 + 1, y2):
-        if g[x1][y] == ".":
-            g[x1][y] = "|"
-        else:
-            g[x1][y] = "X"
+
+        for y in range(min(y1, y2) + 1, max(y1, y2)):
+            if g[x1][y] == ".":
+                g[x1][y] = "-"
+            else:
+                g[x1][y] = "X"
     g[0][0] = "o"
     return g
 
@@ -54,10 +55,12 @@ def manhattan(point):
     return abs(x) + abs(y)
 
 
-# path1 = path_parser("R75,D30,R83,U83,L12,D49,R71,U7,L72")
-# path2 = path_parser("U62,R66,U55,R34,D71,R55,D58,R83")
-path1 = path_parser("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51")
-path2 = path_parser("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
+# path1 =path_parser("R8,U5,L5,D3")
+# path2 = path_parser("U7,R6,D4,L4")
+path1 = path_parser("R75,D30,R83,U83,L12,D49,R71,U7,L72")
+path2 = path_parser("U62,R66,U55,R34,D71,R55,D58,R83")
+# path1 = path_parser("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51")
+# path2 = path_parser("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
 
 x1 = 0
 y1 = 0
@@ -80,10 +83,16 @@ for p in path2:
 g = grid(x1, y1, x2, y2)
 
 for i in range(0, len(path1) - 1):
+    # print(path1[i], path1[i+1])
     g = draw(g, path1[i], path1[i + 1])
 
+
 for i in range(0, len(path2) - 1):
+    # print(path2[i], path2[i + 1])
     g = draw(g, path2[i], path2[i + 1])
+
+for line in g:
+    print(line)
 
 intersect = []
 for x in range(0, len(g)):
