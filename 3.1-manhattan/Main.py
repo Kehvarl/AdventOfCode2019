@@ -1,4 +1,3 @@
-from pprint import pprint
 
 def path_parser(path_string):
     points = [(0, 0)]
@@ -22,32 +21,19 @@ def path_parser(path_string):
     return points
 
 
-def grid(x1, y1, x2, y2):
-    return [["." for _ in range(abs(x1 - x2) + 2)] for _ in range(abs(y1 - y2) + 2)]
+def intersection(s1, e1, s2, e2):
+    sx1, sy1 = s1
+    sx2, sy2 = s2
+    ex1, ey1 = e1
+    ex2, ey2 = e2
 
+    d = (sx1 - ex2) * (sy2 - ey2) - (sy1 - ey1) * (sx2 - ex2)
+    a = sx1 * ey1 - sy1 * ex1
+    b = sx2 * ey2 - sy2 * ex2
+    x = (a * (sx2 - ex2) - (sx2 - ex1) * b) / d
+    y = (a * (sy2 - ey2) - (sy1 - ey1) * b) / d
 
-def draw(g, p1, p2):
-    x1, y1 = p1
-    x2, y2 = p2
-    if x1 != x2:
-        g[x1][y1] = "+"
-        g[x2][y1] = "+"
-        for x in range(min(x1, x2) + 1, max(x1, x2)):
-            if g[x][y1] == ".":
-                g[x][y1] = "|"
-            else:
-                g[x][y1] = "X"
-    else:
-        g[x1][y1] = "+"
-        g[x1][y2] = "+"
-
-        for y in range(min(y1, y2) + 1, max(y1, y2)):
-            if g[x1][y] == ".":
-                g[x1][y] = "-"
-            else:
-                g[x1][y] = "X"
-    g[0][0] = "o"
-    return g
+    return (x, y)
 
 
 def manhattan(point):
@@ -62,47 +48,14 @@ path2 = path_parser("U62,R66,U55,R34,D71,R55,D58,R83")
 # path1 = path_parser("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51")
 # path2 = path_parser("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
 
-x1 = 0
-y1 = 0
-x2 = 0
-y2 = 0
-for p in path1:
-    x, y = p
-    x1 = min(x, x1)
-    x2 = max(x, x2)
-    y1 = min(y, y1)
-    y2 = max(y, y2)
-
-for p in path2:
-    x, y = p
-    x1 = min(x, x1)
-    x2 = max(x, x2)
-    y1 = min(y, y1)
-    y2 = max(y, y2)
-
-g = grid(x1, y1, x2, y2)
-
-for i in range(0, len(path1) - 1):
-    # print(path1[i], path1[i+1])
-    g = draw(g, path1[i], path1[i + 1])
-
-
-for i in range(0, len(path2) - 1):
-    # print(path2[i], path2[i + 1])
-    g = draw(g, path2[i], path2[i + 1])
-
-for line in g:
-    print(line)
-
 intersect = []
-for x in range(0, len(g)):
-    for y in range(0, len(g[0])):
-        if g[x][y] == "X":
-            intersect.append((x, y))
+for i in range(len(path1) - 1):
+    for j in range(len(path2) - 1):
+        print((path1[i], path1[i + 1], path2[j], path2[j + 1]))
+        intersect.append(intersection(path1[i], path1[i + 1], path2[j], path2[j + 1]))
 
 print(intersect)
-for p in intersect:
-    print(manhattan(p))
+
 
 
 
