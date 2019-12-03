@@ -23,17 +23,24 @@ def path_parser(path_string):
 
 def intersection(s1, e1, s2, e2):
     sx1, sy1 = s1
-    sx2, sy2 = s2
     ex1, ey1 = e1
+
+    sx2, sy2 = s2
     ex2, ey2 = e2
 
-    d = (sx1 - ex2) * (sy2 - ey2) - (sy1 - ey1) * (sx2 - ex2)
-    a = sx1 * ey1 - sy1 * ex1
-    b = sx2 * ey2 - sy2 * ex2
-    x = (a * (sx2 - ex2) - (sx2 - ex1) * b) / d
-    y = (a * (sy2 - ey2) - (sy1 - ey1) * b) / d
+    intersect = []
 
-    return (x, y)
+    if sx1 != ex1:
+        for i in range(sx1, ex1):
+            if sx2 < i < ex2:
+                intersect.append((i, sy1))
+    else:
+        for i in range(sy1, ey1):
+            if sy2 < i < ey2:
+                intersect.append((sx1, i))
+
+    return intersect
+
 
 
 def manhattan(point):
