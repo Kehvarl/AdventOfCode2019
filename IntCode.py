@@ -1,34 +1,3 @@
-def int_code(prog, noun=None, verb=None):
-    pc = 0
-    if noun is not None:
-        prog[1] = noun
-
-    if verb is not None:
-        prog[2] = verb
-
-    running = True
-    while running:
-        op = prog[pc]
-        if op == 1:  # add indirect
-            a = prog[prog[pc + 1]]
-            b = prog[prog[pc + 2]]
-            c = prog[pc + 3]
-            prog[c] = a + b
-            pc += 4
-        elif op == 2:  # mul indirect
-            a = prog[prog[pc + 1]]
-            b = prog[prog[pc + 2]]
-            c = prog[pc + 3]
-            prog[c] = a * b
-            pc += 4
-        elif op == 99:
-            running = False
-        else:
-            running = False
-            print("Invalid op code {} at {} !!!".format(op, pc))
-    return prog
-
-
 class IntCode:
     def __init__(self, initial_state=None, verb=None, noun=None):
         self.initial_state = initial_state
@@ -37,9 +6,10 @@ class IntCode:
         self.noun = noun
 
         self.program_counter = 0
-        self.memory_register = 0
 
         self.running = False
+        self.error = False
+        self.error_detail = None
 
         self.reset()
 
@@ -51,8 +21,10 @@ class IntCode:
             self.state[2] = self.noun
 
         self.program_counter = 0
-        self.memory_register = 0
+
         self.running = True
+        self.error = False
+        self.error_detail = None
 
     def load_indirect(self, pointer):
         return self.state[self.state[pointer]]
@@ -68,7 +40,7 @@ class IntCode:
             self.step()
 
     def step(self):
-        op = self.state[self.program_counter]
+        op = self.load(self.program_counter)
         if op == 1:  # add indirect
             a = self.load_indirect(self.program_counter + 1)
             b = self.load_indirect(self.program_counter + 2)
@@ -85,3 +57,5 @@ class IntCode:
             self.running = False
         else:
             self.running = False
+            self.error = True
+            self.error_detail = "Invalid OpCode Encountered: {} at {}.".format(op, self.program_counter)
