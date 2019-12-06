@@ -96,5 +96,6 @@ def main():
     prog = [1002,4,3,4,33]
     comp = IntCode(prog)
     comp.run()
+    # test
 
 main()
