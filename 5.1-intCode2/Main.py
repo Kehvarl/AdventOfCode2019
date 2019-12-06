@@ -72,7 +72,7 @@ class IntCode:
             self.program_counter += 4
         elif op == 3:
             a = self.load(ma, self.program_counter + 1)
-            val = int(input())
+            val = int(input("input"))
             self.store(a, val)
             self.program_counter += 2
         elif op == 4:
