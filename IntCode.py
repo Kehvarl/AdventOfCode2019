@@ -85,3 +85,9 @@ class IntCode:
             self.running = False
             self.error = True
             self.error_detail = "Invalid OpCode Encountered: {} at {}.".format(op, self.program_counter)
+
+
+
+
+if __name__ == "__MAIN__":
+    pass
