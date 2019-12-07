@@ -1,6 +1,6 @@
 class IntCode:
     def __init__(self, initial_state=None, verb=None, noun=None):
-        self.initial_state = initial_state
+        self.initial_state = initial_state[:]
         self.state = []
         self.verb = verb
         self.noun = noun
@@ -47,6 +47,7 @@ class IntCode:
         return (int(a), int(b), int(c), int(op))
 
     def load(self, mode, pointer):
+
         if mode == 1:
             return self.state[pointer]
         else:
@@ -73,17 +74,46 @@ class IntCode:
             c = self.load(1, self.program_counter + 3)
             self.store(c, a * b)  # Multiply
             self.program_counter += 4
-        elif op == 3:
+        elif op == 3:  # Interactive Input
             ma = 1
             a = self.load(ma, self.program_counter + 1)
             val = input("input>")
             self.store(a, int(val))
             self.program_counter += 2
-        elif op == 4:
+        elif op == 4:  # Output
             a = self.load(ma, self.program_counter + 1)
-            print(a)
             self.output += str(a)
             self.program_counter += 2
+        elif op == 5:  # jmp if True
+            a = self.load(ma, self.program_counter + 1)
+            b = self.load(mb, self.program_counter + 2)
+            if a != 0:
+                self.program_counter = b
+            self.program_counter += 3
+        elif op == 6:  # jmp if False
+            a = self.load(ma, self.program_counter + 1)
+            b = self.load(mb, self.program_counter + 2)
+            if a == 0:
+                self.program_counter = b
+            self.program_counter += 3
+        elif op == 7:  # less-than
+            a = self.load(ma, self.program_counter + 1)
+            b = self.load(mb, self.program_counter + 2)
+            c = self.load(1, self.program_counter + 3)
+            if a < b:
+                self.store(c, 1)
+            else:
+                self.store(c, 0)
+            self.program_counter += 4
+        elif op == 8:  # equals
+            a = self.load(ma, self.program_counter + 1)
+            b = self.load(mb, self.program_counter + 2)
+            c = self.load(1, self.program_counter + 3)
+            if a == b:
+                self.store(c, 1)
+            else:
+                self.store(c, 0)
+            self.program_counter += 4
         elif op == 99:
             self.running = False
         else:
@@ -98,6 +128,13 @@ if __name__ == "__main__":
     # prog = [3,0,4,0,99] # state[0] = Input
     # prog = [1002, 4, 3, 4, 33] # state[4] = 99
     # prog = [1101,100,-1,4,0] # state[4] = 99
+    # prog = [3,9,8,9,10,9,4,9,99,-1,8] # input == 8?
+    # prog = [3,9,7,9,10,9,4,9,99,-1,8] # input < 8?
+    # prog = [3,3,1108,-1,8,3,4,3,99] # immediate input == 8?
+    prog = [3, 3, 1107, -1, 8, 3, 4, 3, 99]  # immediate input < 8?
+    # 999   < 8, 1000 = 8, 1001 > 8
+    # prog = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99]
     comp = IntCode(prog)
     comp.run()
     print(comp.state)
+    print(comp.output)
