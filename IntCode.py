@@ -1,9 +1,10 @@
 class IntCode:
-    def __init__(self, initial_state=None, verb=None, noun=None):
-        self.initial_state = initial_state[:]
+    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None):
+        self.initial_state = initial_state
         self.state = []
         self.verb = verb
         self.noun = noun
+        self.input_val = input_val
 
         self.program_counter = 0
 
@@ -16,7 +17,7 @@ class IntCode:
         self.reset()
 
     def reset(self):
-        self.state = self.initial_state
+        self.state = self.initial_state[:]
         if self.verb is not None:
             self.state[1] = self.verb
         if self.noun is not None:
@@ -29,6 +30,7 @@ class IntCode:
         self.error_detail = None
         self.output = ""
 
+    # noinspection PyMethodMayBeStatic
     def decode_op(self, opcode):
         opcode = str(opcode).zfill(5)
         if len(opcode) < 5:
@@ -44,7 +46,7 @@ class IntCode:
         else:
             a = opcode[2]
         op = opcode[-2:]
-        return (int(a), int(b), int(c), int(op))
+        return int(a), int(b), int(c), int(op)
 
     def load(self, mode, pointer):
 
@@ -77,7 +79,11 @@ class IntCode:
         elif op == 3:  # Interactive Input
             ma = 1
             a = self.load(ma, self.program_counter + 1)
-            val = input("input>")
+            if self.input_val is None:
+                val = input("input>")
+            else:
+                val = self.input_val[0]
+                self.input_val = self.input_val[1:]
             self.store(a, int(val))
             self.program_counter += 2
         elif op == 4:  # Output
@@ -135,7 +141,6 @@ if __name__ == "__main__":
     # prog = [3,3,1108,-1,8,3,4,3,99] # immediate input == 8?
     prog = [3, 3, 1107, -1, 8, 3, 4, 3, 99]  # immediate input < 8?
     # 999   < 8, 1000 = 8, 1001 > 8
-    # prog = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99]
     comp = IntCode(prog)
     comp.run()
     print(comp.state)
