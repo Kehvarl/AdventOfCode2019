@@ -89,13 +89,15 @@ class IntCode:
             b = self.load(mb, self.program_counter + 2)
             if a != 0:
                 self.program_counter = b
-            self.program_counter += 3
+            else:
+                self.program_counter += 3
         elif op == 6:  # jmp if False
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
             if a == 0:
                 self.program_counter = b
-            self.program_counter += 3
+            else:
+                self.program_counter += 3
         elif op == 7:  # less-than
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)

@@ -40,5 +40,6 @@ def main():
     comp = IntCode(prog)
     comp.run()
     # test
+    print(comp.output)
 
 main()
