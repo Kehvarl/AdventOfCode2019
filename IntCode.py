@@ -1,11 +1,10 @@
 class IntCode:
-    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None, amplifier_mode=None):
+    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None):
         self.initial_state = initial_state
         self.state = []
         self.verb = verb
         self.noun = noun
         self.input_val = input_val
-        self.amplifier_mode = amplifier_mode
 
         self.program_counter = 0
 
