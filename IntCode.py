@@ -1,18 +1,20 @@
 class IntCode:
-    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None):
+    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None, amplifier_mode=None):
         self.initial_state = initial_state
         self.state = []
         self.verb = verb
         self.noun = noun
         self.input_val = input_val
+        self.amplifier_mode = amplifier_mode
 
         self.program_counter = 0
 
         self.running = False
+        self.completed = False
         self.error = False
         self.error_detail = None
 
-        self.output = ""
+        self.output = 0
 
         self.reset()
 
@@ -26,9 +28,10 @@ class IntCode:
         self.program_counter = 0
 
         self.running = True
+        self.completed = False
         self.error = False
         self.error_detail = None
-        self.output = ""
+        self.output = 0
 
     # noinspection PyMethodMayBeStatic
     def decode_op(self, opcode):
@@ -59,6 +62,7 @@ class IntCode:
         self.state[pointer] = value
 
     def run(self):
+        self.running = True
         while self.running:
             self.step()
 
@@ -82,13 +86,16 @@ class IntCode:
             if self.input_val is None:
                 val = input("input>")
             else:
+                if len(self.input_val) <= 0:
+                    self.running = False
+                    return
                 val = self.input_val[0]
                 self.input_val = self.input_val[1:]
             self.store(a, int(val))
             self.program_counter += 2
         elif op == 4:  # Output
             a = self.load(ma, self.program_counter + 1)
-            self.output += str(a)
+            self.output = a
             self.program_counter += 2
         elif op == 5:  # jmp if True
             a = self.load(ma, self.program_counter + 1)
@@ -124,6 +131,7 @@ class IntCode:
             self.program_counter += 4
         elif op == 99:
             self.running = False
+            self.completed = True
         else:
             self.running = False
             self.error = True
