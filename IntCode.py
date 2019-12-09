@@ -7,6 +7,7 @@ class IntCode:
         self.input_val = input_val
 
         self.program_counter = 0
+        self.relative_base = 0
 
         self.running = False
         self.completed = False
@@ -25,6 +26,7 @@ class IntCode:
             self.state[2] = self.noun
 
         self.program_counter = 0
+        self.relative_base = 0
 
         self.running = True
         self.completed = False
@@ -51,13 +53,20 @@ class IntCode:
         return int(a), int(b), int(c), int(op)
 
     def load(self, mode, pointer):
-
         if mode == 1:
-            return self.state[pointer]
+            load_pointer = pointer
+        elif mode == 2:
+            load_pointer = self.relative_base + pointer
         else:
-            return self.state[self.state[pointer]]
+            load_pointer = self.state[pointer]
+
+        if len(self.state) <= load_pointer:
+            self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
+        return self.state[load_pointer]
 
     def store(self, pointer, value):
+        if len(self.state) <= pointer:
+            self.state.extend([0 for _ in range(pointer - len(self.state) + 1)])
         self.state[pointer] = value
 
     def run(self):
@@ -80,8 +89,9 @@ class IntCode:
             self.store(c, a * b)  # Multiply
             self.program_counter += 4
         elif op == 3:  # Interactive Input
-            ma = 1
+            # if ma == 0: ma = 1
             a = self.load(ma, self.program_counter + 1)
+
             if self.input_val is None:
                 val = input("input>")
             else:
@@ -90,10 +100,12 @@ class IntCode:
                     return
                 val = self.input_val[0]
                 self.input_val = self.input_val[1:]
+
             self.store(a, int(val))
             self.program_counter += 2
         elif op == 4:  # Output
             a = self.load(ma, self.program_counter + 1)
+            print(a)
             self.output = a
             self.program_counter += 2
         elif op == 5:  # jmp if True
@@ -128,6 +140,11 @@ class IntCode:
             else:
                 self.store(c, 0)
             self.program_counter += 4
+        elif op == 9:  # Relative Base Offset
+            ma = 1
+            a = self.load(ma, self.program_counter + 1)
+            self.relative_base += a
+            self.program_counter += 2
         elif op == 99:
             self.running = False
             self.completed = True
