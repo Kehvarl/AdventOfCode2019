@@ -1,3 +1,5 @@
+from math import atan2
+
 test = """......#.#.
 #..#.#....
 ..#######.
@@ -21,6 +23,22 @@ for line in test.split("\n"):
     y += 1
 
 # print(grid)
+
+
+def get_angle(point, origin=(0, 0)):
+    px, py = point
+    ox, oy = origin
+
+    x = px - ox
+    y = py - oy
+
+    return atan2(x, y)
+
+
+def iscolinear(point1, point2, origin=(0, 0)):
+    return ((get_angle(point1, origin) -
+             get_angle(point2, origin)) == 0)
+
 
 slope_to = {}
 for asteroid in grid:
