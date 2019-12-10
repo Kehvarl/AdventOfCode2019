@@ -91,8 +91,10 @@ class IntCode:
             self.store(c, a * b)  # Multiply
             self.program_counter += 4
         elif op == 3:  # Interactive Input
-            if ma == 0: ma = 1
-            if ma == 2: ma = 3
+            if ma == 0:
+                ma = 1
+            if ma == 2:
+                ma = 3
             a = self.load(ma, self.program_counter + 1)
 
             if self.input_val is None:
