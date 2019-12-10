@@ -56,9 +56,9 @@ class IntCode:
         if mode == 1:
             load_pointer = pointer
         elif mode == 2:
-            load_pointer = self.relative_base + pointer
+            load_pointer = self.relative_base + self.state[pointer]
         elif mode == 3:
-            return self.relative_base + pointer
+            return self.relative_base + self.state[pointer]
         else:
             load_pointer = self.state[pointer]
 
@@ -91,8 +91,6 @@ class IntCode:
             self.store(c, a * b)  # Multiply
             self.program_counter += 4
         elif op == 3:  # Interactive Input
-            if ma == 0:
-                ma = 1
             if ma == 2:
                 ma = 3
             a = self.load(ma, self.program_counter + 1)
@@ -139,7 +137,7 @@ class IntCode:
         elif op == 8:  # equals
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load(1, self.program_counter + 3)
+            c = self.load(mc, self.program_counter + 3)
             if a == b:
                 self.store(c, 1)
             else:
