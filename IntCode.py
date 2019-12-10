@@ -57,14 +57,22 @@ class IntCode:
             load_pointer = pointer
         elif mode == 2:
             load_pointer = self.relative_base + self.state[pointer]
-        elif mode == 3:
-            return self.relative_base + self.state[pointer]
         else:
             load_pointer = self.state[pointer]
 
         if len(self.state) <= load_pointer:
             self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
         return self.state[load_pointer]
+
+    def load_io(self, mode, pointer):
+        if mode == 2:
+            load_pointer = self.relative_base + self.state[pointer]
+        else:
+            load_pointer = self.state[pointer]
+
+        if len(self.state) <= load_pointer:
+            self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
+        return load_pointer
 
     def store(self, pointer, value):
         if len(self.state) <= pointer:
@@ -81,19 +89,17 @@ class IntCode:
         if op == 1:  # add
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load(1, self.program_counter + 3)  #
+            c = self.load_io(mc, self.program_counter + 3)  #
             self.store(c, a + b)  # Add
             self.program_counter += 4
         elif op == 2:  # mul
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load(1, self.program_counter + 3)
+            c = self.load_io(mc, self.program_counter + 3)
             self.store(c, a * b)  # Multiply
             self.program_counter += 4
         elif op == 3:  # Interactive Input
-            if ma == 2:
-                ma = 3
-            a = self.load(ma, self.program_counter + 1)
+            a = self.load_io(ma, self.program_counter + 1)
 
             if self.input_val is None:
                 val = input("input>")
@@ -107,9 +113,9 @@ class IntCode:
             self.store(a, int(val))
             self.program_counter += 2
         elif op == 4:  # Output
-            a = self.load(ma, self.program_counter + 1)
-            print(a)
-            self.output = a
+            a = self.load_io(ma, self.program_counter + 1)
+            print(self.state[a])
+            self.output = self.state[a]
             self.program_counter += 2
         elif op == 5:  # jmp if True
             a = self.load(ma, self.program_counter + 1)
@@ -128,7 +134,7 @@ class IntCode:
         elif op == 7:  # less-than
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load(1, self.program_counter + 3)
+            c = self.load_io(mc, self.program_counter + 3)
             if a < b:
                 self.store(c, 1)
             else:
@@ -137,14 +143,14 @@ class IntCode:
         elif op == 8:  # equals
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load(mc, self.program_counter + 3)
+            c = self.load_io(mc, self.program_counter + 3)
             if a == b:
                 self.store(c, 1)
             else:
                 self.store(c, 0)
             self.program_counter += 4
         elif op == 9:  # Relative Base Offset
-            ma = 1
+            # ma = 1
             a = self.load(ma, self.program_counter + 1)
             self.relative_base += a
             self.program_counter += 2
