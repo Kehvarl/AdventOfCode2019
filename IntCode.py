@@ -64,6 +64,18 @@ class IntCode:
             self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
         return self.state[load_pointer]
 
+    def load_a(self, mode, pointer):
+        if mode == 1:
+            load_pointer = pointer
+        elif mode == 2:
+            load_pointer = self.relative_base + self.state[pointer]
+        else:
+            load_pointer = self.state[pointer]
+
+        if len(self.state) <= load_pointer:
+            self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
+        return load_pointer
+
     def load_io(self, mode, pointer):
         if mode == 2:
             load_pointer = self.relative_base + self.state[pointer]
@@ -113,7 +125,7 @@ class IntCode:
             self.store(a, int(val))
             self.program_counter += 2
         elif op == 4:  # Output
-            a = self.load_io(ma, self.program_counter + 1)
+            a = self.load_a(ma, self.program_counter + 1)
             # print(self.state[a])
             self.output.append(self.state[a])
             self.program_counter += 2
