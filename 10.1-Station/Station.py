@@ -117,13 +117,12 @@ deleted = 0
 
 
 def func(a):
-    return (a) % 360
+    return (a + 179) % 360
 
 
-angles_list = sorted(angles.keys())  # , key=func)
+angles_list = sorted(angles.keys(), key=func, reverse=True)
 
 print(angles_list)
-print(angles[209.74488129694222])
 
 for a in angles_list:
     closest = None
@@ -137,8 +136,9 @@ for a in angles_list:
             if dist_1 < dist:
                 closest = p
                 dist = dist_1
-        if closest is not None:
-            deleted += 1
-            if p == (17, 7):
-                print(deleted, p, dist, a)
-            angles[a].remove(p)
+
+    if closest is not None:
+        deleted += 1
+        if deleted == 200:
+            print(deleted, p, dist, a)
+        angles[a].remove(p)
