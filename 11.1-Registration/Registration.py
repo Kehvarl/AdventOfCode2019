@@ -81,12 +81,13 @@ prog = [3, 8, 1005, 8, 361, 1106, 0, 11, 0, 0, 0, 104, 1, 104, 0, 3, 8, 102, -1,
         21101, 670, 0, 0, 105, 1, 545, 21202, -2, -1, -2, 22201, -4, -2, -4, 109, -5, 2106, 0, 0]
 
 robot = Robot()
-comp = IntCode(prog, input_val=[0])
+comp = IntCode(prog, input_val=[1])
 comp.run()
+# Interpreter always returns 8,3 for first output.  Should be 1,0
 print(comp.output.pop())
 print(comp.output.pop())
-# robot.paint(1)
-# robot.turn(0)
+robot.paint(0)
+robot.turn(1)
 
 
 while not comp.completed:
@@ -94,6 +95,7 @@ while not comp.completed:
     comp.input_val.append(color)
     comp.run()
     # print(comp.output)
+    comp.output.reverse()
     robot.paint(comp.output.pop())
     robot.turn(comp.output.pop())
 
@@ -111,4 +113,4 @@ for y in range(robot.min_y, robot.max_y + 1):
     print(line)
 
 print(len(robot.path))
-# print(robot.path)
+print(robot.path)
