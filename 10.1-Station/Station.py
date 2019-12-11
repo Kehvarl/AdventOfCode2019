@@ -1,4 +1,5 @@
 from math import atan2
+import math
 
 test = """.#......##.#..#.......#####...#..
 ...#.....##......###....#.##.....
@@ -64,6 +65,16 @@ def iscolinear(point1, point2, origin=(0, 0)):
              get_angle(point2, origin)) == 0)
 
 
+def to_angle(angle):
+    return math.degrees(angle % (2 * math.pi))
+
+
+def get_distance(point, origin=(0, 0)):
+    px, py = point
+    ox, oy = origin
+    return math.sqrt((ox - px) ** 2 + (oy - py) ** 2)
+
+
 slope_to = {}
 for asteroid in grid:
     slope_to[asteroid] = {}
@@ -91,3 +102,42 @@ for asteroid in slope_to:
     # print(len(slopes_used))
 
 print(base, visible)
+
+angles = {}
+for slope in slope_to[base]:
+    if slope != base:
+        angle = to_angle(get_angle(slope, base))
+        angles[angle] = angles.get(angle, [])
+        angles[angle].append(slope)
+
+print(angles)
+
+angle = 180.0
+deleted = 0
+
+
+def func(a):
+    return (a) % 360
+
+
+angles_list = sorted(angles.keys(), key=func, reverse=True)
+
+print(angles_list)
+
+for a in angles_list:
+    closest = None
+    dist = 0
+    for p in angles[a]:
+        if closest is None:
+            closest = p
+            dist = get_distance(p, base)
+        else:
+            dist_1 = get_distance(p, base)
+            if dist_1 < dist:
+                closest = p
+                dist = dist_1
+        if closest is not None:
+            deleted += 1
+            if p == (17, 7):
+                print(deleted, p, dist)
+            angles[a].remove(p)
