@@ -15,12 +15,17 @@ class Robot:
         self.painted = 0
 
     def paint(self, color):
+        if 0 > color > 1:
+            print(color)
         if (self.x, self.y) not in self.grid:
             self.painted += 1
         self.grid[(self.x, self.y)] = color
         self.path.append((self.x, self.y, color))
 
     def turn(self, direction):
+        if 0 > direction > 1:
+            print(direction)
+
         if direction == 0:
             self.direction -= 1
         else:
@@ -29,13 +34,13 @@ class Robot:
         self.move()
 
     def move(self):
-        if self.direction == 0:
+        if self.direction == 0:  # Up
             self.y -= 1
-        elif self.direction == 1:
+        elif self.direction == 1:  # Right
             self.x += 1
-        elif self.direction == 2:
+        elif self.direction == 2:  # Down
             self.y += 1
-        elif self.direction == 3:
+        elif self.direction == 3:  # Left
             self.x -= 1
         else:
             print("broken")
@@ -84,9 +89,9 @@ robot = Robot()
 comp = IntCode(prog, input_val=[1])
 comp.run()
 # Interpreter always returns 8,3 for first output.  Should be 1,0
-print(comp.output.pop())
-print(comp.output.pop())
-robot.paint(0)
+print(comp.state[comp.output.pop()])
+print(comp.state[comp.output.pop()])
+robot.paint(1)
 robot.turn(1)
 
 
@@ -109,7 +114,7 @@ print(robot.max_x, robot.max_y)
 for y in range(robot.min_y, robot.max_y + 1):
     line = ""
     for x in range(robot.min_x, robot.max_x + 1):
-        line += ("00" if (robot.grid.get((x, y), 0) == 1) else "  ") + " "
+        line += ("00" if (robot.grid.get((x, y), 0) == 1) else "  ") + "."
     print(line)
 
 print(len(robot.path))
