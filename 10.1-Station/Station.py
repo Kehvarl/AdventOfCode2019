@@ -75,7 +75,8 @@ for asteroid in grid:
 # print(slope_to)
 
 
-visible = []
+visible = 0
+base = None
 for asteroid in slope_to:
     slopes_used = []
     for slope in slope_to[asteroid]:
@@ -83,8 +84,10 @@ for asteroid in slope_to:
         if slope_to[asteroid][slope] not in slopes_used:
             slopes_used.append(slope_to[asteroid][slope])
 
-    visible.append(len(slopes_used))
+    if len(slopes_used) > visible:
+        visible = len(slopes_used)
+        base = asteroid
     # print(slopes_used)
     # print(len(slopes_used))
 
-print(max(visible))
+print(base, visible)
