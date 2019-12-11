@@ -11,12 +11,14 @@ class Robot:
         self.max_y = 0
         self.direction = 0
         self.grid = {}
+        self.path = []
         self.painted = 0
 
     def paint(self, color):
         if (self.x, self.y) not in self.grid:
             self.painted += 1
         self.grid[(self.x, self.y)] = color
+        self.path.append((self.x, self.y, color))
 
     def turn(self, direction):
         if direction == 0:
@@ -79,7 +81,7 @@ prog = [3, 8, 1005, 8, 361, 1106, 0, 11, 0, 0, 0, 104, 1, 104, 0, 3, 8, 102, -1,
         21101, 670, 0, 0, 105, 1, 545, 21202, -2, -1, -2, 22201, -4, -2, -4, 109, -5, 2106, 0, 0]
 
 robot = Robot()
-comp = IntCode(prog, input_val=[1])
+comp = IntCode(prog, input_val=[0])
 comp.run()
 print(comp.output.pop())
 print(comp.output.pop())
@@ -101,8 +103,12 @@ print(robot.painted)
 print(robot.min_x, robot.min_y)
 print(robot.max_x, robot.max_y)
 
+
 for y in range(robot.min_y, robot.max_y + 1):
     line = ""
     for x in range(robot.min_x, robot.max_x + 1):
         line += ("00" if (robot.grid.get((x, y), 0) == 1) else "  ") + " "
     print(line)
+
+print(len(robot.path))
+# print(robot.path)
