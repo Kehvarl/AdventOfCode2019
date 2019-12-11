@@ -14,7 +14,7 @@ class IntCode:
         self.error = False
         self.error_detail = None
 
-        self.output = 0
+        self.output = []
 
         self.reset()
 
@@ -32,7 +32,7 @@ class IntCode:
         self.completed = False
         self.error = False
         self.error_detail = None
-        self.output = 0
+        self.output = []
 
     # noinspection PyMethodMayBeStatic
     def decode_op(self, opcode):
@@ -114,8 +114,8 @@ class IntCode:
             self.program_counter += 2
         elif op == 4:  # Output
             a = self.load_io(ma, self.program_counter + 1)
-            print(self.state[a])
-            self.output = self.state[a]
+            # print(self.state[a])
+            self.output.append(self.state[a])
             self.program_counter += 2
         elif op == 5:  # jmp if True
             a = self.load(ma, self.program_counter + 1)
