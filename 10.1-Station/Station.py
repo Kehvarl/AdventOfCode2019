@@ -72,7 +72,7 @@ def to_angle(angle):
 def get_distance(point, origin=(0, 0)):
     px, py = point
     ox, oy = origin
-    return math.sqrt((ox - px) ** 2 + (oy - py) ** 2)
+    return math.sqrt((px - ox) ** 2 + (py - oy) ** 2)
 
 
 slope_to = {}
@@ -120,9 +120,10 @@ def func(a):
     return (a) % 360
 
 
-angles_list = sorted(angles.keys(), key=func, reverse=True)
+angles_list = sorted(angles.keys())  # , key=func)
 
 print(angles_list)
+print(angles[209.74488129694222])
 
 for a in angles_list:
     closest = None
@@ -139,5 +140,5 @@ for a in angles_list:
         if closest is not None:
             deleted += 1
             if p == (17, 7):
-                print(deleted, p, dist)
+                print(deleted, p, dist, a)
             angles[a].remove(p)
