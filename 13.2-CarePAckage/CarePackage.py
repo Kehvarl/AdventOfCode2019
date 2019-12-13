@@ -98,6 +98,9 @@ def render_screen(data):
     max_x = 0
     max_y = 0
     score = 0
+    ball = 0
+    paddle = 0
+
     while i < len(data):
         x = data[i]
         y = data[i + 1]
@@ -127,8 +130,10 @@ def render_screen(data):
             display[y][x] = "."
         if id == 3:
             display[y][x] = "_"
+            paddle = x
         if id == 4:
             display[y][x] = "0"
+            ball = x
 
     for line in display:
         print("".join(line))
@@ -136,15 +141,17 @@ def render_screen(data):
     if score != 0:
         print(score)
 
+    return (ball, paddle)
+
 
 while not comp.completed:
     comp.run()
-    render_screen(comp.output)
-    key = input("direction")
-    if key == "a":
-        out = -1
-    elif key == "d":
-        out = 1
-    else:
-        out = 0
-    comp.input_val.append(out)
+    ball, paddle = render_screen(comp.output)
+
+    direction = 0
+    if ball < paddle:
+        direction = -1
+    elif ball > paddle:
+        direction = 1
+
+    comp.input_val.append(direction)
