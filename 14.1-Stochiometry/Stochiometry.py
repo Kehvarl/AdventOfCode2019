@@ -19,18 +19,28 @@ for line in input.split("\n"):
 
 print(reactions)
 
-materials = {}
-
+extra = {}
 
 def needed_for(qty, material):
     needed_materials, makes = reactions[(material)]
 
+    out = 0
     for precursor, needed in needed_materials:
-        if precursor == "ORE":
-            out = int(needed)
-        else:
-            out = needed_for(int(needed) * qty, precursor)
+        needed = int(needed)
+        if precursor in extra:
+            if extra[precursor] >= needed:
+                extra[precursor] -= needed
+                needed = 0
+            else:
+                needed -= extra[precursor]
+                extra[precursor] = 0
 
+        # ratio = int(needed) // int(makes)
+        if needed > 0:
+            if precursor == "ORE":
+                out += needed
+            else:
+                out += needed_for(int(qty), precursor)
     return out
 
 
