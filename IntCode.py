@@ -1,5 +1,5 @@
 class IntCode:
-    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None):
+    def __init__(self, initial_state=None, verb=None, noun=None, input_val=None, debug=False):
         self.initial_state = initial_state
         self.state = []
         self.verb = verb
@@ -11,10 +11,12 @@ class IntCode:
 
         self.running = False
         self.completed = False
+        self.debug_mode = debug
         self.error = False
         self.error_detail = None
 
         self.output = []
+        self.debug_log = []
 
         self.reset()
 
@@ -33,26 +35,18 @@ class IntCode:
         self.error = False
         self.error_detail = None
         self.output = []
+        self.debug_log = []
 
     # noinspection PyMethodMayBeStatic
     def decode_op(self, opcode):
         opcode = str(opcode).zfill(5)
-        if len(opcode) < 5:
-            c = 0
-        else:
-            c = opcode[0]
-        if len(opcode) < 4:
-            b = 0
-        else:
-            b = opcode[1]
-        if len(opcode) < 3:
-            a = 0
-        else:
-            a = opcode[2]
+        c = opcode[0]
+        b = opcode[1]
+        a = opcode[2]
         op = opcode[-2:]
         return int(a), int(b), int(c), int(op)
 
-    def load(self, mode, pointer):
+    def load(self, mode, pointer, dereference=True):
         if mode == 1:
             load_pointer = pointer
         elif mode == 2:
@@ -62,29 +56,11 @@ class IntCode:
 
         if len(self.state) <= load_pointer:
             self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
-        return self.state[load_pointer]
 
-    def load_a(self, mode, pointer):
-        if mode == 1:
-            load_pointer = pointer
-        elif mode == 2:
-            load_pointer = self.relative_base + self.state[pointer]
+        if dereference:
+            return self.state[load_pointer]
         else:
-            load_pointer = self.state[pointer]
-
-        if len(self.state) <= load_pointer:
-            self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
-        return load_pointer
-
-    def load_io(self, mode, pointer):
-        if mode == 2:
-            load_pointer = self.relative_base + self.state[pointer]
-        else:
-            load_pointer = self.state[pointer]
-
-        if len(self.state) <= load_pointer:
-            self.state.extend([0 for _ in range(load_pointer - len(self.state) + 1)])
-        return load_pointer
+            return load_pointer
 
     def store(self, pointer, value):
         if len(self.state) <= pointer:
@@ -101,17 +77,17 @@ class IntCode:
         if op == 1:  # add
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load_io(mc, self.program_counter + 3)  #
+            c = self.load(mc, self.program_counter + 3, dereference=False)
             self.store(c, a + b)  # Add
             self.program_counter += 4
         elif op == 2:  # mul
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load_io(mc, self.program_counter + 3)
+            c = self.load(mc, self.program_counter + 3, dereference=False)
             self.store(c, a * b)  # Multiply
             self.program_counter += 4
         elif op == 3:  # Interactive Input
-            a = self.load_io(ma, self.program_counter + 1)
+            a = self.load(ma, self.program_counter + 1, dereference=False)
 
             if self.input_val is None:
                 val = input("input>")
@@ -125,7 +101,7 @@ class IntCode:
             self.store(a, int(val))
             self.program_counter += 2
         elif op == 4:  # Output
-            a = self.load_a(ma, self.program_counter + 1)
+            a = self.load(ma, self.program_counter + 1, dereference=False)
             # print(self.state[a])
             self.output.append(self.state[a])
             self.program_counter += 2
@@ -146,7 +122,7 @@ class IntCode:
         elif op == 7:  # less-than
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load_io(mc, self.program_counter + 3)
+            c = self.load(mc, self.program_counter + 3, dereference=False)
             if a < b:
                 self.store(c, 1)
             else:
@@ -155,7 +131,7 @@ class IntCode:
         elif op == 8:  # equals
             a = self.load(ma, self.program_counter + 1)
             b = self.load(mb, self.program_counter + 2)
-            c = self.load_io(mc, self.program_counter + 3)
+            c = self.load(mc, self.program_counter + 3, dereference=False)
             if a == b:
                 self.store(c, 1)
             else:
