@@ -23,9 +23,18 @@ def parse_recipe(recipe):
     return reactions
 
 
+extra_materials = {}
+
+
 def needed_for(qty, material, reactions):
-    needed_materials, makes = reactions[material]
-    return 0
+    consumes, makes = reactions[material]
+    makes = int(makes)
+    if makes > qty:
+        if not extra_materials.get(material):
+            extra_materials[material] = 0
+        extra_materials[material] += makes - qty
+
+    return qty
 
 
 recipe_data = parse_recipe(input_recipe)
