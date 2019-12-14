@@ -168,10 +168,12 @@ puzzle_recipe = """10 LSZLT, 29 XQJK => 4 BMRQJ
 12 QDSXV => 9 RZCGN
 1 FBFLK, 7 HVZR => 9 PBRWB"""
 
-fuel = 2959788
+# fuel = 3687786
+fuel = 460664
 assembler = NanoAssembler()
-assembler.load_reactions(puzzle_recipe)
-assembler.craft("FUEL", fuel)
+assembler.load_reactions(input_recipe5)
+for i in range(fuel):
+    assembler.craft("FUEL")
 
 print(assembler.consumed_raw)
 print(assembler.available_materials)
