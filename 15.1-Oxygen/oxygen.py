@@ -70,19 +70,23 @@ def droid_can_move(position):
     return map.get(position, 1) != 0
 
 
+def print_display():
+    grid = [["." for _ in range(100)] for _ in range(100)]
+    for pos in map.keys():
+        x, y = pos
+        val = map[pos]
+        grid[y][x] = val
+
+    for line in grid:
+        print("".join(line))
+
 droid_state = 1
 comp = IntCode(prog, input_val=[])
 
 while droid_state != 2:
     comp.run()
     if comp.output:
-        map[(droid_x, droiy_y)] = comp.output.pop()
-    pos = droid_next()
-    if droid_can_move(pos):
-        comp.input_val.append(droid_direction)
-    else:
-        droid_direction = droid_direction + 1
-        if droid_direction == 5:
-            droid_direction = 1
-
-print(map)
+        map[(droid_x, droiy_y)] = str(comp.output.pop())
+        print(map)
+    print_display()
+    comp.input_val.append(input("1,2,3,4> "))
