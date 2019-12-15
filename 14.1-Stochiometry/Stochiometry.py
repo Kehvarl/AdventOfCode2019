@@ -1,3 +1,6 @@
+import math
+
+
 class NanoAssembler:
     def __init__(self):
         self.reactions = {}
@@ -16,32 +19,38 @@ class NanoAssembler:
 
             self.reactions[prod] = (raw_list[:], prod_qty)
 
-    def craft(self, material, multiplier=1):
+    def craft(self, material, wanted=1):
         recipe = self.reactions.get(material)
 
         if recipe:
             precursors, makes = recipe
             makes = int(makes)
+            prod_ratio = math.ceil(wanted / makes)
+            multiplier = prod_ratio * makes
 
             for ingredient, qty in precursors:
-                qty = int(qty)
+                qty = int(qty) * multiplier
 
                 if not self.available_materials.get(ingredient):
                     self.available_materials[ingredient] = 0
+                else:
+                    avail = min(qty, self.available_materials[ingredient])
+                    qty -= avail
+                    self.available_materials[ingredient] -= avail
 
-                while self.available_materials[ingredient] < (qty * multiplier):
-                    produced = self.craft(ingredient, multiplier)
+                while self.available_materials[ingredient] < qty:
+                    produced = self.craft(ingredient, qty)  # , multiplier)
 
                     if not produced:  # can't craft, must be a raw material
                         if self.consumed_raw.get(ingredient):
-                            self.consumed_raw[ingredient] += (qty * multiplier)
-                            self.available_materials[ingredient] += (qty * multiplier)
+                            self.consumed_raw[ingredient] += qty
+                            self.available_materials[ingredient] += qty
                         else:
-                            self.consumed_raw[ingredient] = (qty * multiplier)
-                            self.available_materials[ingredient] += (qty * multiplier)
+                            self.consumed_raw[ingredient] = qty
+                            self.available_materials[ingredient] += qty
                         break
 
-                self.available_materials[ingredient] -= (qty * multiplier)
+                self.available_materials[ingredient] -= qty
 
             if not self.available_materials.get(material):
                 self.available_materials[material] = 0
@@ -168,12 +177,11 @@ puzzle_recipe = """10 LSZLT, 29 XQJK => 4 BMRQJ
 12 QDSXV => 9 RZCGN
 1 FBFLK, 7 HVZR => 9 PBRWB"""
 
-# fuel = 3687786
-fuel = 460664
+fuel = 3687786
+# fuel = 460664
 assembler = NanoAssembler()
-assembler.load_reactions(input_recipe5)
-for i in range(fuel):
-    assembler.craft("FUEL")
+assembler.load_reactions(puzzle_recipe)
+assembler.craft("FUEL", fuel)
 
 print(assembler.consumed_raw)
 print(assembler.available_materials)
