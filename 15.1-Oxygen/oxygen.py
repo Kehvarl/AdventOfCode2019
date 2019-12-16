@@ -1,4 +1,6 @@
+from enum import Enum
 from IntCode import IntCode
+from BFS_map import BFSMap
 
 prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005, 1032, 58, 1008, 1033, 3, 1032, 1005,
         1032, 81, 1008, 1033, 4, 1032, 1005, 1032, 104, 99, 101, 0, 1034, 1039, 102, 1, 1036, 1041, 1001, 1035, -1,
@@ -42,51 +44,159 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
         56, 8, 58, 38, 66, 12, 61, 33, 88, 30, 92, 27, 57, 0, 0, 21, 21, 1, 10, 1, 0, 0, 0, 0, 0, 0
         ]
 
-droid_x = 0
-droiy_y = 0
 
-# 1,2,3,4 =N, S, W, E
-droid_direction = 1
+class Direction(Enum):
+    NORTH = 1
+    SOUTH = 2
+    WEST = 3
+    EAST = 4
 
-map = {}
+    @staticmethod
+    def next(direction):
+        if direction == Direction.NORTH:
+            return Direction.EAST
+        elif direction == Direction.EAST:
+            return Direction.SOUTH
+        elif direction == Direction.SOUTH:
+            return Direction.WEST
+        elif direction == Direction.WEST:
+            return Direction.NORTH
+
+    @staticmethod
+    def to_int(direction):
+        if direction == Direction.NORTH:
+            return 1
+        elif direction == Direction.EAST:
+            return 4
+        elif direction == Direction.SOUTH:
+            return 2
+        elif direction == Direction.WEST:
+            return 3
 
 
-def droid_next():
-    x = droid_x
-    y = droiy_y
-    if droid_direction == 1:
-        x += 1
-    elif droid_direction == 2:
-        x -= 1
-    elif droid_direction == 3:
-        y -= 1
-    elif droid_direction == 4:
-        y += 1
+class Droid:
+    def __init__(self, computer):
+        self.pos = (0, 0)
+        # self.next_pos = self.move_outcome()
+        self.direction = Direction.NORTH
+        self.computer = computer
+        self.found_oxygen = False
 
-    return (x, y)
+        self.explored_coordinates = {}
+
+    def move(self):
+        self.computer.input_val.append(Direction.to_int(self.direction))
+        self.computer.run()
+        if self.computer.output:
+            self.move_outcome(self.computer.output.pop())
+            self.explore_next()
+
+    def move_outcome(self, tile):
+        pos = self.target_pos()
+        self.explored_coordinates[pos] = tile
+
+        if tile != 0:
+            self.pos = pos
+        else:
+            self.direction = Direction.next(self.direction)
+
+        if tile == 2:
+            self.found_oxygen = True
+
+    def target_pos(self, direction=None):
+        if direction is None:
+            direction = self.direction
+        x, y = self.pos
+        if direction == Direction.NORTH:
+            y += 1
+        elif direction == Direction.SOUTH:
+            y -= 1
+        elif direction == Direction.WEST:
+            x -= 1
+        elif direction == Direction.EAST:
+            x += 1
+        return x, y
+
+    def direction_to(self, pos):
+        tx, ty = pos
+        fx, fy = self.pos
+        x = tx - fx
+        y = ty - fy
+        if -1 > x > 1 or -1 > y > 1:
+            print("{} and {} are not adjacent".format(pos, self.pos))
+            return 0
+
+        if x == 0:
+            if y == 1:
+                return Direction.NORTH
+            elif y == -1:
+                return Direction.SOUTH
+            else:
+                return 0
+        elif y == 0:
+            if x == 1:
+                return Direction.EAST
+            elif x == -1:
+                return Direction.WEST
+            else:
+                return 0
+        else:
+            print("{} and {} are not orthogonal".format(pos, self.pos))
+            return 0
+
+    def explore_next(self):
+        pos = self.target_pos()
+        if pos in self.explored_coordinates:
+            nc = [Direction.NORTH,
+                  Direction.SOUTH,
+                  Direction.EAST,
+                  Direction.WEST]
+            for c in nc:
+                if self.target_pos(c) not in self.explored_coordinates:
+                    self.direction = c
+                    return
+        if not self.can_move(pos):
+            nc = [Direction.NORTH,
+                  Direction.SOUTH,
+                  Direction.EAST,
+                  Direction.WEST]
+            for c in nc:
+                if self.can_move(self.target_pos(c)):
+                    self.direction = c
+
+    def can_move(self, position):
+        return self.explored_coordinates.get(position, 1) != 0
+
+    def display_map(self):
+        min_x = 0
+        min_y = 0
+        max_x = 0
+        max_y = 0
+        for pos in self.explored_coordinates.keys():
+            x, y = pos
+            if x < min_x: min_x = x
+            if x > max_x: max_x = x
+            if y < min_y: min_y = y
+            if y > max_y: max_y = y
+
+        grid = [[" " for _ in range(min_x - 1, max_x + 2)] for _ in range(min_y - 1, max_y + 2)]
+        tiles = ["#", ".", "O"]
+
+        for pos in self.explored_coordinates.keys():
+            x, y = pos
+            grid[y - min_y][x - min_x] = tiles[self.explored_coordinates[pos]]
+        x, y = self.pos
+        grid[y - min_y][x - min_x] = "*"
+        grid[0 - min_y][0 - min_x] = "X"
+
+        for line in grid:
+            print("".join(line))
 
 
-def droid_can_move(position):
-    return map.get(position, 1) != 0
+droid = Droid(IntCode(prog, input_val=[]))
+while not droid.found_oxygen:
+    droid.move()
+    # droid.display_map()
 
-
-def print_display():
-    grid = [["." for _ in range(100)] for _ in range(100)]
-    for pos in map.keys():
-        x, y = pos
-        val = map[pos]
-        grid[y][x] = val
-
-    for line in grid:
-        print("".join(line))
-
-droid_state = 1
-comp = IntCode(prog, input_val=[])
-
-while droid_state != 2:
-    comp.run()
-    if comp.output:
-        map[(droid_x, droiy_y)] = str(comp.output.pop())
-        print(map)
-    print_display()
-    comp.input_val.append(input("1,2,3,4> "))
+print(droid.explored_coordinates)
+droid.display_map()
