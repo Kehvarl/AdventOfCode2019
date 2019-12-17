@@ -13,6 +13,8 @@ test_data = """..#..........
 ..#...#...#..
 ..#####...^..""".split("\n")
 
+test_data = ("".join(display)).strip().split("\n")
+
 print(test_data)
 
 grid = [[test_data[y][x] for x in range(len(test_data[0]))] for y in range(len(test_data))]
@@ -31,3 +33,4 @@ for y in range(1, len(test_data) - 1):
 
 print(intersections)
 print(sum(intersections))
+
