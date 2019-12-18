@@ -4,6 +4,9 @@ class Tile:
         self.door = door
         self.key = key
 
+    def blocks(self, keys):
+        return self.block_move or (self.door and self.door.lower() not in keys)
+
     def __repr__(self):
         if self.block_move:
             return "#"
@@ -39,14 +42,16 @@ class GameMap:
         """
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def is_blocked(self, x, y):
+    def is_blocked(self, x, y, keys=None):
         """
         Check if a tile blocks movement
         :param int x: position of Tile on map
         :param int y: position of Tile on map
+        :param list keys: keys player has collected
         :return bool: True if tile blocks movement.
         """
-        return self.tiles[y][x].block_move
+        if keys is None: keys = []
+        return self.tiles[y][x].blocks(keys)
 
     def __repr__(self):
         maze = ""
