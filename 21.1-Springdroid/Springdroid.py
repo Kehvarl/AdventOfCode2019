@@ -27,7 +27,7 @@ prog = ["NOT A J",  # Hole in A
 
         "OR H T",  # Or not a hole in H (Can Jump to)
 
-        "AND T J",
+        "AND T J",  # Need to jump soon. AND safe landing spot, and somewhere to go afterwords.
 
         "RUN"]
 
