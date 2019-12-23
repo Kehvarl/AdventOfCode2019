@@ -44,96 +44,90 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
         ]
 
 
-def display():
-    min_x = 0
-    max_x = 0
-    min_y = 0
-    max_y = 0
+class Solver:
+    def __init__(self, comp):
+        self.path = []
+        self.grid = {(0, 0): 1}
 
-    for pos in grid.keys():
-        x, y = pos
+        self.droid_facing = 1
+        self.droid_x = 0
+        self.droid_y = 0
 
-        if x < min_x:
-            min_x = x
-        if x > max_x:
-            max_x = x
+        self.min_x = 0
+        self.max_x = 0
+        self.min_y = 0
+        self.max_y = 0
 
-        if y < min_y:
-            min_y = y
-        if y > max_y:
-            max_y = y
+        self.comp = comp
 
-    display_grid = [[" " for _ in range(min_x - 1, max_x + 1)] for _ in range(min_y - 1, max_y + 1)]
+    def __repr__(self):
+        for pos in self.grid.keys():
+            x, y = pos
 
-    for pos in grid.keys():
+            if x < self.min_x:
+                self.min_x = x
+            if x > self.max_x:
+                self.max_x = x
 
-        x, y = pos
+            if y < self.min_y:
+                self.min_y = y
+            if y > self.max_y:
+                self.max_y = y
 
-        x = x + abs(min_x)
-        y = y + abs(min_y)
+        display_grid = [[" " for _ in range(self.min_x - 1, self.max_x + 1)]
+                        for _ in range(self.min_y - 1, self.max_y + 1)]
 
-        tile = grid[pos]
+        tiles = ["#", ".", "0"]
+        for pos in self.grid.keys():
+            x, y = pos
+            x = x + abs(self.min_x)
+            y = y + abs(self.min_y)
 
-        if tile == 0:
-            display_grid[y][x] = "#"
-        if tile == 1:
-            display_grid[y][x] = "."
-        if tile == 2:
-            display_grid[y][x] = "0"
+            display_grid[y][x] = tiles[self.grid[pos]]
 
-    for line in display_grid:
-        print("".join(line))
+        return "\n".join(["".join(line) for line in display_grid])
 
-
-def get_coords(x, y, direction):
-    if direction == 1:
-        y -= 1
-    elif direction == 2:
-        y += 1
-    elif direction == 3:
-        x -= 1
-    elif direction == 4:
-        x += 1
-    else:
-        print("Invalid direction: {} from (P{, {})".format(direction, x, y))
-
-    return x, y
-
-
-def test(direction):
-    if direction in range(1, 5):
-        droid.input_val.append(direction)
-        droid.run()
-        return droid.output.pop()
-    else:
-        print("Invalid direction.")
-
-
-def search(x, y):
-    for direction in range(1, 5):
-        pos = get_coords(x, y, direction)
-        if grid.get(pos, False):
-            continue
+    @staticmethod
+    def get_pos(x, y, direction):
+        if direction == 1:
+            y -= 1
+        elif direction == 2:
+            y += 1
+        elif direction == 3:
+            x -= 1
+        elif direction == 4:
+            x += 1
         else:
-            move = test(direction)
-            pos = get_coords(x, y, direction)
-            grid[pos] = move
-            if move == 1:
-                x, y = pos
-                return search(x, y)
-            elif move == 2:
-                return x, y
-    return -1
+            print("Invalid direction: {} from (P{, {})".format(direction, x, y))
 
+        return x, y
 
-path = []
-grid = {(0, 0): 1}
-droid_facing = 1
-droid_x = 0
-droid_y = 0
+    def test(self, direction):
+        if direction in range(1, 5):
+            self.comp.input_val.append(direction)
+            self.comp.run()
+            return self.comp.output.pop()
+        else:
+            print("Invalid direction.")
+
+    def search(self, x, y):
+        for direction in range(1, 5):
+            pos = Solver.get_pos(x, y, direction)
+            if self.grid.get(pos, False):
+                continue
+            else:
+                move = self.test(direction)
+                pos = Solver.get_pos(x, y, direction)
+                self.grid[pos] = move
+                if move == 1:
+                    x, y = pos
+                    return self.search(x, y)
+                elif move == 2:
+                    return x, y
+        return -1
+
 
 droid = IntCode(prog, input_val=[])
-print(search(droid_x, droid_y))
-print(grid)
-
-display()
+solver = Solver(droid)
+solver.search(0, 0)
+print(solver)
