@@ -146,3 +146,10 @@ solver = Solver(droid)
 print(solver.search(0, 0))
 print(solver)
 print(solver.path)
+
+# Can I go <direction>?
+# No, add to map as wall
+# Yes, add to map as open, record direction, start over from new square
+# tested all directions?
+# No, test next
+# Yes, go back to previous square
