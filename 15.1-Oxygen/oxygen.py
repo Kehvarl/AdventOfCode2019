@@ -45,6 +45,8 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
 
 
 class Solver:
+    reverse_direction = {1: 2, 2: 1, 3: 4, 4: 3}
+
     def __init__(self, comp):
         self.path = []
         self.grid = {(0, 0): 1}
@@ -111,6 +113,7 @@ class Solver:
             print("Invalid direction.")
 
     def search(self, x, y):
+        outcome = False
         for direction in range(1, 5):
             pos = Solver.get_pos(x, y, direction)
             if self.grid.get(pos, False):
@@ -121,13 +124,25 @@ class Solver:
                 self.grid[pos] = move
                 if move == 1:
                     x, y = pos
-                    return self.search(x, y)
+                    self.path.append(direction)
+                    outcome = self.search(x, y)
+                    if outcome:
+                        return x, y
                 elif move == 2:
                     return x, y
-        return -1
+
+        if len(self.path) == 0:
+            return -1
+        else:
+            direction = self.path[-1]
+            self.path = self.path[:-1]
+            direction = Solver.reverse_direction[direction]
+            move = self.test(direction)
+            pos = Solver.get_pos(x, y, direction)
 
 
 droid = IntCode(prog, input_val=[])
 solver = Solver(droid)
-solver.search(0, 0)
+print(solver.search(0, 0))
 print(solver)
+print(solver.path)
