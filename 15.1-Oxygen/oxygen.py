@@ -43,113 +43,87 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
         56, 8, 58, 38, 66, 12, 61, 33, 88, 30, 92, 27, 57, 0, 0, 21, 21, 1, 10, 1, 0, 0, 0, 0, 0, 0
         ]
 
+reverse_direction = {1: 2, 2: 1, 3: 4, 4: 3}
 
-class Solver:
-    reverse_direction = {1: 2, 2: 1, 3: 4, 4: 3}
 
-    def __init__(self, comp):
-        self.path = []
-        self.grid = {(0, 0): 1}
+def display(grid, min_x, max_x, min_y, max_y):
+    for pos in grid.keys():
+        x, y = pos
 
-        self.droid_facing = 1
-        self.droid_x = 0
-        self.droid_y = 0
+        if x < min_x:
+            min_x = x
+        if x > max_x:
+            max_x = x
 
-        self.min_x = 0
-        self.max_x = 0
-        self.min_y = 0
-        self.max_y = 0
+        if y < min_y:
+            min_y = y
+        if y > max_y:
+            max_y = y
 
-        self.comp = comp
+    display_grid = [[" " for _ in range(min_x - 1, max_x + 1)]
+                    for _ in range(min_y - 1, max_y + 1)]
 
-    def __repr__(self):
-        for pos in self.grid.keys():
+    tiles = ["#", ".", "0"]
+    for pos in grid.keys():
+        x, y = pos
+        x = x + abs(min_x)
+        y = y + abs(min_y)
+
+        display_grid[y][x] = tiles[grid[pos]]
+
+    return "\n".join(["".join(line) for line in display_grid])
+
+
+def get_pos(x, y, direction):
+    if direction == 1:
+        y -= 1
+    elif direction == 2:
+        y += 1
+    elif direction == 3:
+        x -= 1
+    elif direction == 4:
+        x += 1
+    else:
+        print("Invalid direction: {} from (P{, {})".format(direction, x, y))
+
+    return x, y
+
+
+def test(direction):
+    # If the direction is an allowed direction
+    # Try to move in the desired direction and tell me what's there
+    if direction in range(1, 5):
+        comp.input_val.append(direction)
+        comp.run()
+        return comp.output.pop()
+    else:
+        print("Invalid direction.")
+
+
+comp = IntCode(prog, input_val=[])
+grid = {(0, 0): 1}
+path = []
+
+droid_x = 0
+droid_y = 0
+
+searching = True
+while searching:
+    for direction in range(1, 5):
+        # Can I go <direction>?
+        move = test(direction)
+        pos = get_pos(droid_x, droid_y, direction)
+        # Store what's in <direction>
+        grid[pos] = move
+        # record direction, start over from new square
+        if move == 1:
             x, y = pos
-
-            if x < self.min_x:
-                self.min_x = x
-            if x > self.max_x:
-                self.max_x = x
-
-            if y < self.min_y:
-                self.min_y = y
-            if y > self.max_y:
-                self.max_y = y
-
-        display_grid = [[" " for _ in range(self.min_x - 1, self.max_x + 1)]
-                        for _ in range(self.min_y - 1, self.max_y + 1)]
-
-        tiles = ["#", ".", "0"]
-        for pos in self.grid.keys():
-            x, y = pos
-            x = x + abs(self.min_x)
-            y = y + abs(self.min_y)
-
-            display_grid[y][x] = tiles[self.grid[pos]]
-
-        return "\n".join(["".join(line) for line in display_grid])
-
-    @staticmethod
-    def get_pos(x, y, direction):
-        if direction == 1:
-            y -= 1
-        elif direction == 2:
-            y += 1
-        elif direction == 3:
-            x -= 1
-        elif direction == 4:
-            x += 1
-        else:
-            print("Invalid direction: {} from (P{, {})".format(direction, x, y))
-
-        return x, y
-
-    def test(self, direction):
-        if direction in range(1, 5):
-            self.comp.input_val.append(direction)
-            self.comp.run()
-            return self.comp.output.pop()
-        else:
-            print("Invalid direction.")
-
-    def search(self, x, y):
-        outcome = False
-        for direction in range(1, 5):
-            pos = Solver.get_pos(x, y, direction)
-            if self.grid.get(pos, False):
-                continue
-            else:
-                move = self.test(direction)
-                pos = Solver.get_pos(x, y, direction)
-                self.grid[pos] = move
-                if move == 1:
-                    x, y = pos
-                    self.path.append(direction)
-                    outcome = self.search(x, y)
-                    if outcome:
-                        return x, y
-                elif move == 2:
-                    return x, y
-
-        if len(self.path) == 0:
-            return -1
-        else:
-            direction = self.path[-1]
-            self.path = self.path[:-1]
-            direction = Solver.reverse_direction[direction]
-            move = self.test(direction)
-            pos = Solver.get_pos(x, y, direction)
-
-
-droid = IntCode(prog, input_val=[])
-solver = Solver(droid)
-print(solver.search(0, 0))
-print(solver)
-print(solver.path)
-
-# Can I go <direction>?
-# No, add to map as wall
-# Yes, add to map as open, record direction, start over from new square
-# tested all directions?
-# No, test next
-# Yes, go back to previous square
+            path.append(direction)
+            # search(x, y, grid, path)
+        if move == 2:
+            print(x, y)
+        # tested all directions?
+        # No, test next
+    # Yes, go back to previous square
+    test(reverse_direction[path[-1]])
+    path = path[:-1]
