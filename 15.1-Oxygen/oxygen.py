@@ -44,24 +44,7 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
         ]
 
 
-def display(grid):
-    min_x = 0
-    min_y = 0
-    max_x = 0
-    max_y = 0
-
-    for pos in grid.keys():
-        x, y = pos
-
-        if x < min_x:
-            min_x = x
-        if x > max_x:
-            max_x = x
-
-        if y < min_y:
-            min_y = y
-        if y > max_y:
-            max_y = y
+def display(grid, min_x, max_x, min_y, max_y):
 
     display_grid = [[" " for _ in range(min_x - 1, max_x + 1)]
                     for _ in range(min_y - 1, max_y + 1)]
@@ -137,4 +120,22 @@ while running:
         if droid_direction > 4: droid_direction = 1
         # Try the next direction
 
-print(display(grid))
+min_x = 0
+min_y = 0
+max_x = 0
+max_y = 0
+
+for pos in grid.keys():
+    x, y = pos
+
+    if x < min_x:
+        min_x = x
+    if x > max_x:
+        max_x = x
+
+    if y < min_y:
+        min_y = y
+    if y > max_y:
+        max_y = y
+
+print(display(grid, min_x, max_x, min_y, max_y))
