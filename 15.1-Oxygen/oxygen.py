@@ -43,10 +43,13 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
         56, 8, 58, 38, 66, 12, 61, 33, 88, 30, 92, 27, 57, 0, 0, 21, 21, 1, 10, 1, 0, 0, 0, 0, 0, 0
         ]
 
-reverse_direction = {1: 2, 2: 1, 3: 4, 4: 3}
 
+def display(grid):
+    min_x = 0
+    min_y = 0
+    max_x = 0
+    max_y = 0
 
-def display(grid, min_x, max_x, min_y, max_y):
     for pos in grid.keys():
         x, y = pos
 
@@ -63,7 +66,7 @@ def display(grid, min_x, max_x, min_y, max_y):
     display_grid = [[" " for _ in range(min_x - 1, max_x + 1)]
                     for _ in range(min_y - 1, max_y + 1)]
 
-    tiles = ["#", ".", "0"]
+    tiles = ["#", ".", "0", "@"]
     for pos in grid.keys():
         x, y = pos
         x = x + abs(min_x)
@@ -84,46 +87,54 @@ def get_pos(x, y, direction):
     elif direction == 4:
         x += 1
     else:
-        print("Invalid direction: {} from (P{, {})".format(direction, x, y))
+        print("Invalid direction: {} from {}, {})".format(direction, x, y))
 
     return x, y
 
 
-def test(direction):
-    # If the direction is an allowed direction
-    # Try to move in the desired direction and tell me what's there
-    if direction in range(1, 5):
-        comp.input_val.append(direction)
-        comp.run()
-        return comp.output.pop()
-    else:
-        print("Invalid direction.")
+reverse_direction = {1: 2, 2: 1, 3: 4, 4: 3}
 
-
-comp = IntCode(prog, input_val=[])
-grid = {(0, 0): 1}
+droid = IntCode(prog, input_val=[])
+droid_direction = 1
+grid = {(0, 0): 3}
 path = []
-
 droid_x = 0
 droid_y = 0
 
-searching = True
-while searching:
-    for direction in range(1, 5):
-        # Can I go <direction>?
-        move = test(direction)
-        pos = get_pos(droid_x, droid_y, direction)
-        # Store what's in <direction>
-        grid[pos] = move
-        # record direction, start over from new square
-        if move == 1:
-            x, y = pos
-            path.append(direction)
-            # search(x, y, grid, path)
-        if move == 2:
-            print(x, y)
-        # tested all directions?
-        # No, test next
-    # Yes, go back to previous square
-    test(reverse_direction[path[-1]])
-    path = path[:-1]
+running = True
+while running:
+    # Try to move droid
+    pos = get_pos(droid_x, droid_y, droid_direction)
+
+    while pos in grid and droid_direction <= 4:
+        droid_direction += 1
+        if droid_direction <= 4:
+            pos = get_pos(droid_x, droid_y, droid_direction)
+
+    if droid_direction == 5 and len(path) > 0:
+        droid_direction = reverse_direction[path[-1]]
+        droid.input_val.append(droid_direction)
+        pos = get_pos(droid_x, droid_y, droid_direction)
+        path = path[:-1]
+        droid.run()
+        droid_x, droid_y = pos
+        continue
+    elif droid_direction == 5 and len(path) == 0:
+        running = False
+        break
+
+    droid.input_val.append(droid_direction)
+    droid.run()
+    move = droid.output.pop()
+    grid[pos] = move
+    # Did it move?
+    if move > 0:
+        path.append(droid_direction)
+        droid_direction = 1
+        droid_x, droid_y = pos
+    else:
+        droid_direction += 1
+        if droid_direction > 4: droid_direction = 1
+        # Try the next direction
+
+print(display(grid))
