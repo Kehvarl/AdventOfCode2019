@@ -44,7 +44,7 @@ prog = [3, 1033, 1008, 1033, 1, 1032, 1005, 1032, 31, 1008, 1033, 2, 1032, 1005,
         ]
 
 
-def display(grid, min_x, max_x, min_y, max_y):
+def grid_to_map(grid, min_x, max_x, min_y, max_y):
 
     display_grid = [[" " for _ in range(min_x - 1, max_x + 1)]
                     for _ in range(min_y - 1, max_y + 1)]
@@ -57,7 +57,7 @@ def display(grid, min_x, max_x, min_y, max_y):
 
         display_grid[y][x] = tiles[grid[pos]]
 
-    return "\n".join(["".join(line) for line in display_grid])
+    return display_grid
 
 
 def get_pos(x, y, direction):
@@ -81,6 +81,7 @@ droid = IntCode(prog, input_val=[])
 droid_direction = 1
 grid = {(0, 0): 3}
 path = []
+goal = None
 droid_x = 0
 droid_y = 0
 
@@ -115,6 +116,8 @@ while running:
         path.append(droid_direction)
         droid_direction = 1
         droid_x, droid_y = pos
+        if move == 2:
+            goal = pos
     else:
         droid_direction += 1
         if droid_direction > 4: droid_direction = 1
@@ -138,4 +141,43 @@ for pos in grid.keys():
     if y > max_y:
         max_y = y
 
-print(display(grid, min_x, max_x, min_y, max_y))
+display_grid = grid_to_map(grid, min_x, max_x, min_y, max_y)
+
+print("\n".join(["".join(line) for line in display_grid]))
+
+bfs = [[1000 for _ in range(len(display_grid[0]))] for _ in range(len(display_grid))]
+gx, gy = goal
+gx = gx + abs(min_x)
+gy = gy + abs(min_y)
+
+sx, sy = (0, 0)
+sx = sx + abs(min_x)
+sy = sy + abs(min_y)
+
+bfs[gy][gx] = 0
+
+neighbors = [(0, -1), (-1, 0), (1, 0), (0, 1)]
+"""
+Use Dijkstra's Algorithm to calculate the movement score towards
+goals in this map
+"""
+changed = True
+while changed:
+    changed = False
+    for y in range(0, len(display_grid)):
+        for x in range(0, len(display_grid[0])):
+            if not display_grid[y][x] == "#":
+                lowest_neighbor = 1000
+                for neighbor in neighbors:
+                    dx, dy = neighbor
+                    tx, ty = x + dx, y + dy
+                    if 0 <= tx < len(display_grid[0]) and 0 <= ty < len(display_grid):
+                        lowest_neighbor = min(lowest_neighbor, bfs[ty][tx])
+
+                if bfs[y][x] > lowest_neighbor + 1:
+                    bfs[y][x] = lowest_neighbor + 1
+                    changed = True
+
+printable_bfs = [[str(i).zfill(3) if i < 1000 else "###" for i in line] for line in bfs]
+print("\n".join([" ".join(line) for line in printable_bfs]))
+print(bfs[sy][sx])
