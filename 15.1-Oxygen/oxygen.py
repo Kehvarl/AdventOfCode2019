@@ -182,3 +182,10 @@ printable_bfs = [[str(i).zfill(3) if i < 1000 else "###" for i in line] for line
 print("\n".join([" ".join(line) for line in printable_bfs]))
 print()
 print(bfs[sy][sx])
+
+max_dist = 0
+for y in range(0, len(bfs)):
+    for x in range(0, len(bfs[0])):
+        if bfs[y][x] > max_dist and bfs[y][x] != 1000:
+            max_dist = bfs[y][x]
+print(max_dist)
