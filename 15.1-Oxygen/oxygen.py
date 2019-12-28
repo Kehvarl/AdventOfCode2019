@@ -180,4 +180,5 @@ while changed:
 
 printable_bfs = [[str(i).zfill(3) if i < 1000 else "###" for i in line] for line in bfs]
 print("\n".join([" ".join(line) for line in printable_bfs]))
+print()
 print(bfs[sy][sx])
