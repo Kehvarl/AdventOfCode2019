@@ -145,7 +145,59 @@ while not end:
         path.append(turn)
         bot_direction = turning[bot_direction][0 if turn == "L" else 1]
 
-print(path)
-# Can I move forward?  Increment forward count
-# Else: Am I at the end? End
-# Else: Turn
+print("".join([str(x) for x in path]))
+
+
+# A L6 R12 L6 L8 L8
+# A L6 R12 L6 L8 L8
+
+# B L6 R12 R8 L8
+
+# C L4 L4 L6
+# B L6 R12 R8 L8
+
+# A L6 R12 L6 L8 L8
+
+# C L4 L4 L6
+# B L6 R12 R8 L8
+
+# C L4 L4 L6
+
+# A L6 R12 L6 L8 L8
+
+# A, A, B, C, B, A, C, B, C, A
+
+
+def send_instructions(instructions, computer):
+    for instruction in instructions:
+        operation = [ord(char) for char in instruction]
+        operation.append(10)
+        print(operation)
+        comp.input_val = operation
+        comp.run()
+
+
+prog = [int(x) for x in open("input.txt", "r").readline().split(",")]
+prog[0] = 2
+comp.output = []
+comp = IntCode(prog, input_val=[])
+comp.run()
+
+routine = "A,A,B,C,B,A,C,B,C,A".split()
+A = "L,6,R,12,L,6,L,8,L,8".split()
+B = "L,6,R,12,R,8,L,8".split()
+C = "L,4,L,4,L,6".split()
+video = "n".split()
+
+send_instructions(routine, comp)
+
+send_instructions(A, comp)
+
+send_instructions(B, comp)
+
+send_instructions(C, comp)
+send_instructions(video, comp)
+
+print("\n".join(parse_output(comp.output)))
+
+print(comp.output)
