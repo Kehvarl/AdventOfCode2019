@@ -90,5 +90,9 @@ comp.run()
 # intersections = get_intersections(parse_output(comp.output))
 # print(intersections)
 # print(sum(intersections))
-# print("\n".join(parse_output(comp.output)))
+print("\n".join(parse_output(comp.output)))
 print(get_turn(parse_output(comp.output)))
+
+# Can I move forward?  Increment forward count
+# Else: Am I at the end? End
+# Else: Turn
