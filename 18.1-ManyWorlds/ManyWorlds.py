@@ -50,6 +50,7 @@ bot_x, bot_y = pos
 
 neighbors = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
+doors = {}
 points_of_interest = {}
 bfs_poi = {}
 graph_interest = {}
@@ -62,6 +63,8 @@ for y in range(0, len(maze)):
             bfs_poi[tile] = ([[1000 for _ in range(len(maze[0]))] for _ in range(len(maze))])
             bfs_poi[tile][y][x] = 0
             points_of_interest[tile] = (x, y)
+        elif tile.isalpha() and tile.isupper():
+            doors[tile] = (x, y)
 
 for poi in bfs_poi:
     bfs_poi[poi] = bfs_search(bfs_poi[poi], maze)
