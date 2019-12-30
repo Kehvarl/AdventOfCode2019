@@ -25,34 +25,48 @@ def find_bot(data):
                 return bot_pos
 
 
+def bfs_search(search_grid, search_maze):
+    changed = True
+    while changed:
+        changed = False
+        for y in range(0, len(search_maze)):
+            for x in range(0, len(search_maze[0])):
+                if not search_maze[y][x] == "#":
+                    lowest_neighbor = 1000
+                    for neighbor in neighbors:
+                        dx, dy = neighbor
+                        tx, ty = x + dx, y + dy
+                        if 0 <= tx < len(search_maze[0]) and 0 <= ty < len(search_maze):
+                            lowest_neighbor = min(lowest_neighbor, search_grid[ty][tx])
+
+                    if search_grid[y][x] > lowest_neighbor + 1:
+                        search_grid[y][x] = lowest_neighbor + 1
+                        changed = True
+    return search_grid
+
+
 pos = find_bot(maze)
 bot_x, bot_y = pos
 
-bfs = [[1000 for _ in range(len(maze[0]))] for _ in range(len(maze))]
-
-bfs[bot_y][bot_x] = 0
-
 neighbors = [(0, -1), (-1, 0), (1, 0), (0, 1)]
-"""
-Use Dijkstra's Algorithm to calculate the movement score towards
-goals in this map
-"""
-changed = True
-while changed:
-    changed = False
-    for y in range(0, len(maze)):
-        for x in range(0, len(maze[0])):
-            if not maze[y][x] == "#":
-                lowest_neighbor = 1000
-                for neighbor in neighbors:
-                    dx, dy = neighbor
-                    tx, ty = x + dx, y + dy
-                    if 0 <= tx < len(maze[0]) and 0 <= ty < len(maze):
-                        lowest_neighbor = min(lowest_neighbor, bfs[ty][tx])
 
-                if bfs[y][x] > lowest_neighbor + 1:
-                    bfs[y][x] = lowest_neighbor + 1
-                    changed = True
+points_of_interest = {}
+bfs_poi = {}
+graph_interest = {}
 
-for line in bfs:
-    print(" ".join([str(x).zfill(2) if (x != 1000) else "##" for x in line]))
+for y in range(0, len(maze)):
+    for x in range(0, len(maze[0])):
+        tile = maze[y][x]
+        if tile == "@" or (tile.isalpha() and tile.islower()):
+            graph_interest[tile] = []
+            bfs_poi[tile] = ([[1000 for _ in range(len(maze[0]))] for _ in range(len(maze))])
+            bfs_poi[tile][y][x] = 0
+            points_of_interest[tile] = (x, y)
+
+for poi in bfs_poi:
+    bfs_poi[poi] = bfs_search(bfs_poi[poi], maze)
+
+    print(poi, points_of_interest[poi])
+    for line in bfs_poi[poi]:
+        print(" ".join([str(x).zfill(2) if (x != 1000) else "##" for x in line]))
+    print()
