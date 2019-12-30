@@ -58,7 +58,7 @@ for y in range(0, len(maze)):
     for x in range(0, len(maze[0])):
         tile = maze[y][x]
         if tile == "@" or (tile.isalpha() and tile.islower()):
-            graph_interest[tile] = []
+            graph_interest[tile] = {}
             bfs_poi[tile] = ([[1000 for _ in range(len(maze[0]))] for _ in range(len(maze))])
             bfs_poi[tile][y][x] = 0
             points_of_interest[tile] = (x, y)
@@ -70,3 +70,11 @@ for poi in bfs_poi:
     for line in bfs_poi[poi]:
         print(" ".join([str(x).zfill(2) if (x != 1000) else "##" for x in line]))
     print()
+
+for poi1 in bfs_poi:
+    for poi2 in bfs_poi:
+        if poi2 != poi1:
+            x, y = points_of_interest[poi2]
+            graph_interest[poi1][poi2] = bfs_poi[poi1][y][x]
+
+print(graph_interest)
