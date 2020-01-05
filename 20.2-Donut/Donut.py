@@ -63,7 +63,7 @@ for link in portals:
 print(portals)
 print(portal_links)
 
-levels = 1
+level = 0
 bfs = [[[1000 for _ in range(len(grid[0]))] for _ in range(len(grid))]]
 bfs[0][gy][gx] = 0
 """
@@ -73,33 +73,31 @@ goals in this map
 changed = True
 while changed:
     changed = False
-    for level in range(0, levels):
-        for y in range(0, len(grid)):
-            for x in range(0, len(grid[0])):
-                if grid[y][x] == ".":
-                    lowest_neighbor = 1000
-                    for neighbor in neighbors:
-                        dx, dy = neighbor
-                        tx, ty = x + dx, y + dy
+    for y in range(0, len(grid)):
+        for x in range(0, len(grid[0])):
+            if grid[y][x] == ".":
+                lowest_neighbor = 1000
+                for neighbor in neighbors:
+                    dx, dy = neighbor
+                    tx, ty = x + dx, y + dy
 
-                        if (tx, ty) in portal_links:
-                            px, py, pe = portal_links[(tx, ty)]
-                            if pe and level > 0:
-                                level -= 1
-                                tx, ty = px, py
-                            elif not pe:
-                                level += 1
-                                tx, ty = px, py
-                                if levels <= level:
-                                    levels += 1
-                                    bfs.append([[1000 for _ in range(len(grid[0]))] for _ in range(len(grid))])
+                    if (tx, ty) in portal_links:
+                        px, py, pe = portal_links[(tx, ty)]
+                        if pe and level > 0:
+                            level -= 1
+                            tx, ty = px, py
+                        elif not pe:
+                            level += 1
+                            tx, ty = px, py
+                            if len(bfs) < level + 1:
+                                bfs.append([[1000 for _ in range(len(grid[0]))] for _ in range(len(grid))])
 
-                        if 0 <= tx < len(grid[0]) and 0 <= ty < len(grid):
-                            lowest_neighbor = min(lowest_neighbor, bfs[level][ty][tx])
+                    if 0 <= tx < len(grid[0]) and 0 <= ty < len(grid):
+                        lowest_neighbor = min(lowest_neighbor, bfs[level][ty][tx])
 
-                    if bfs[level][y][x] > lowest_neighbor + 1:
-                        bfs[level][y][x] = lowest_neighbor + 1
-                        changed = True
+                if bfs[level][y][x] > lowest_neighbor + 1:
+                    bfs[level][y][x] = lowest_neighbor + 1
+                    changed = True
 
 printable_bfs = [[[str(i).zfill(3) if i < 1000 else "###" for i in line] for line in level] for level in bfs]
 print("\n".join([" ".join(line) for line in printable_bfs[0]]))

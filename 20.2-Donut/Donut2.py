@@ -1,4 +1,6 @@
-example1 = open("example1.txt", "r").read()
+import collections
+
+example1 = open("example3.txt", "r").read()
 
 # grid = [[val for val in line] for line in example1.split("\n")]
 grid = example1.split("\n")
@@ -63,44 +65,41 @@ for link in portals:
 print(portals)
 print(portal_links)
 
-x, y = sx, sy
-level = 0
-path = [(0, sx, sy)]
-searched = {(0, sx, sy): 0}
+bfs = collections.deque([((sx, sy), 0, 0)])
+seen = {(sx, sy, 0)}
 
 running = True
 while running:
+    pos, level, dist = bfs.popleft()
+    if pos == (gx, gy) and level == 0:
+        running = False
+        break
+
     for neighbor in neighbors:
         dx, dy = neighbor
-        tx, ty = x + dx, y + dy
-        tlevel = level
+        tx, ty = pos
+        tx, ty = tx + dx, ty + dy
+        t_level = level
+
         if (tx, ty) in portal_links:
-            px, py, pe = portal_links[(tx, ty)]
+            px, py, p_edge = portal_links[(tx, ty)]
 
-            if pe and level > 0:
-                tlevel -= 1
+            if p_edge and t_level > 0:
+                t_level -= 1
                 tx, ty = px, py
-            elif not pe:
-                tlevel += 1
+            elif not p_edge:
+                t_level += 1
                 tx, ty = px, py
 
-        if (tlevel, tx, ty) not in searched:
-            level, x, y = tlevel, tx, ty
-            break
-    else:
-        level, x, y = path[-1]
-        path = path[:-1]
+        if (tx, ty, t_level) in seen:
+            continue
+        seen.add((tx, ty, t_level))
 
-    if len(path) == 0:
-        running = False
-        break
+        if grid[ty][tx] == '.':
+            bfs.append(((tx, ty), t_level, dist + 1))
 
-    if level == 0 and x == gx and y == gy:
-        running = False
-        break
-
-    searched[(level, x, y)] = 0
 
 print("complete")
-print(path)
-print(searched)
+print(seen)
+print(bfs)
+print(dist)
