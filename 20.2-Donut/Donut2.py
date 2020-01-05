@@ -1,7 +1,7 @@
 import collections
 from pprint import pprint
 
-example1 = open("example3.txt", "r").read()
+example1 = open("input.txt", "r").read()
 
 # grid = [[val for val in line] for line in example1.split("\n")]
 grid = example1.split("\n")
@@ -37,14 +37,16 @@ portals = {}
 portal_links = {}
 height = len(grid) - 1
 width = len(grid[0]) - 1
-edges = [0, 1, height, height - 1, width, width - 1]
+
 for y in range(len(grid)):
     for x in range(len(grid[0])):
         if grid[y][x].isalpha():
             portal = find_dot(x, y)
             if portal:
-                edge = x in edges or y in edges
                 dot, (tag_x, tag_y) = portal
+                dot_x, dot_y = dot
+                edge = dot_x == 2 or dot_x == width - 2 or dot_y == 2 or dot_y == height - 2
+
                 tag = "".join(sorted(grid[y][x] + grid[tag_y][tag_x]))
                 if not portals.get(tag):
                     portals[tag] = []
@@ -55,15 +57,15 @@ for link in portals:
     ends = portals[link]
     if len(ends) == 2:
         (a, (a_x, a_y), a_edge), (b, (b_x, b_y), b_edge) = ends
-        portal_links[a] = (b_x, b_y, b_edge, link)
-        portal_links[b] = (a_x, a_y, a_edge, link)
+        portal_links[a] = (b_x, b_y, a_edge, link)
+        portal_links[b] = (a_x, a_y, b_edge, link)
 
     elif link == "ZZ":
         goal, (gx, gy), ge = ends[0]
     elif link == "AA":
         start, (sx, sy), se = ends[0]
 
-print(portals)
+pprint(portals)
 print(portal_links)
 
 bfs = collections.deque([((sx, sy), 0, 0)])
@@ -86,12 +88,13 @@ while running:
 
         if (tx, ty) in portal_links:
             px, py, p_edge, link = portal_links[(tx, ty)]
-            print(link, (tx, ty), (px, py))
 
-            if not p_edge and t_level > 0:
+            # print(link, (tx, ty), (px, py), p_edge)
+
+            if p_edge and t_level > 0:
                 t_level -= 1
                 tx, ty = px, py
-            elif p_edge:
+            elif not p_edge:
                 t_level += 1
                 tx, ty = px, py
 
