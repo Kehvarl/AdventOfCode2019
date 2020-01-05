@@ -1,4 +1,5 @@
 import collections
+from pprint import pprint
 
 example1 = open("example3.txt", "r").read()
 
@@ -72,6 +73,7 @@ running = True
 while running:
     pos, level, dist = bfs.popleft()
     if pos == (gx, gy) and level == 0:
+        print(dist)
         running = False
         break
 
@@ -84,10 +86,10 @@ while running:
         if (tx, ty) in portal_links:
             px, py, p_edge = portal_links[(tx, ty)]
 
-            if p_edge and t_level > 0:
+            if not p_edge and t_level > 0:
                 t_level -= 1
                 tx, ty = px, py
-            elif not p_edge:
+            elif p_edge:
                 t_level += 1
                 tx, ty = px, py
 
@@ -96,10 +98,9 @@ while running:
         seen.add((tx, ty, t_level))
 
         if grid[ty][tx] == '.':
-            bfs.append(((tx, ty), t_level, dist + 1))
+            p = (tx, ty)
+            s = (p, t_level, dist + 1)
+            bfs.append(s)
 
 
 print("complete")
-print(seen)
-print(bfs)
-print(dist)
