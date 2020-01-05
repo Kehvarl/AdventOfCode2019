@@ -55,8 +55,8 @@ for link in portals:
     ends = portals[link]
     if len(ends) == 2:
         (a, (a_x, a_y), a_edge), (b, (b_x, b_y), b_edge) = ends
-        portal_links[a] = (b_x, b_y, b_edge)
-        portal_links[b] = (a_x, a_y, a_edge)
+        portal_links[a] = (b_x, b_y, b_edge, link)
+        portal_links[b] = (a_x, a_y, a_edge, link)
 
     elif link == "ZZ":
         goal, (gx, gy), ge = ends[0]
@@ -72,6 +72,7 @@ seen = {(sx, sy, 0)}
 running = True
 while running:
     pos, level, dist = bfs.popleft()
+
     if pos == (gx, gy) and level == 0:
         print(dist)
         running = False
@@ -84,7 +85,8 @@ while running:
         t_level = level
 
         if (tx, ty) in portal_links:
-            px, py, p_edge = portal_links[(tx, ty)]
+            px, py, p_edge, link = portal_links[(tx, ty)]
+            print(link, (tx, ty), (px, py))
 
             if not p_edge and t_level > 0:
                 t_level -= 1
