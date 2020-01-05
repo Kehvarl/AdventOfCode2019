@@ -72,24 +72,30 @@ running = True
 while running:
     for neighbor in neighbors:
         dx, dy = neighbor
-        x, y = x + dx, y + dy
-        if (x, y) in portal_links:
-            px, py, pe = portal_links[(x, y)]
+        tx, ty = x + dx, y + dy
+        tlevel = level
+        if (tx, ty) in portal_links:
+            px, py, pe = portal_links[(tx, ty)]
 
             if pe and level > 0:
-                level -= 1
-                x, y = px, py
+                tlevel -= 1
+                tx, ty = px, py
             elif not pe:
-                level += 1
-                x, y = px, py
+                tlevel += 1
+                tx, ty = px, py
 
-        if (level, x, y) not in searched:
+        if (tlevel, tx, ty) not in searched:
+            level, x, y = tlevel, tx, ty
             break
     else:
         level, x, y = path[-1]
         path = path[:-1]
 
     if len(path) == 0:
+        running = False
+        break
+
+    if level == 0 and x == gx and y == gy:
         running = False
         break
 
