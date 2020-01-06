@@ -109,3 +109,14 @@ for i in range(200):
     grid = step_minute(grid)
 
 print(len(grid))
+
+min_level = min(l for l, x, y in grid)
+max_level = max(l for l, x, y in grid)
+for level in range(min_level, max_level + 1):
+    print(level)
+    for y in range(5):
+        line = ""
+        for x in range(5):
+            line += ("#" if (level, x, y) in grid else ".")
+        print(line)
+print()
