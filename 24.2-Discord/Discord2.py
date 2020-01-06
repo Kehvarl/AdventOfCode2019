@@ -13,6 +13,8 @@ def parse_input(input_string):
 
 
 def get_adjacent(current_grid, current_level, cell_x, cell_y):
+    low = level
+    high = level
     neighbors = []
     for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
         cx, cy = cell_x + dx, cell_y + dy
@@ -20,38 +22,39 @@ def get_adjacent(current_grid, current_level, cell_x, cell_y):
         if cx < 0:
             # return level -1, x = 1, y = 2
             neighbors.append(current_grid.get((current_level - 1, 1, 2), "."))
+            low -= 1
         elif cx > 4:
             # return level -1, x = 3, y = 2
             neighbors.append(current_grid.get((current_level - 1, 3, 2), "."))
-
+            low -= 1
         elif cy < 0:
             # return level -1, x = 2, y = 1
             neighbors.append(current_grid.get((current_level - 1, 2, 1), "."))
-
+            low -= 1
         elif cy > 4:
             # return level -1, x = 2, y = 3
             neighbors.append(current_grid.get((current_level - 1, 2, 1), "."))
-
+            low -= 1
         elif cx == 2 and cy == 2:
             if cell_x == 1:
-                for _y in range(4):
+                for _y in range(5):
                     neighbors.append(current_grid.get((current_level + 1, 0, _y), "."))
-
+                    high += 1
             elif cell_x == 3:
-                for _y in range(4):
+                for _y in range(5):
                     neighbors.append(current_grid.get((current_level + 1, 4, _y), "."))
-
+                    high += 1
             elif cell_y == 1:
-                for _x in range(4):
+                for _x in range(5):
                     neighbors.append(current_grid.get((current_level + 1, _x, 0), "."))
-
+                    high += 1
             elif cell_y == 3:
-                for _x in range(4):
+                for _x in range(5):
                     neighbors.append(current_grid.get((current_level + 1, _x, 3), "."))
-
+                    high += 1
         else:
             neighbors.append(current_grid.get((current_level, cx, cy), "."))
-    return neighbors
+    return neighbors, low, high
 
 
 input1 = """##.#.
@@ -70,18 +73,33 @@ grid = parse_input(test)
 min_level = 0
 max_level = 0
 
-for iter in range(10):
+print(sum([1 if val == "#" else 0 for val in grid.values()]))
+
+for _ in range(2):
     for level in range(min_level, max_level + 1):
-        for y in range(4):
-            for x in range(4):
-                count = sum([1 if val == "#" else 0 for val in get_adjacent(grid, level, x, y)])
+        for y in range(5):
+            for x in range(5):
+                if x == 2 and y == 2:
+                    continue
+
+                adjacent, low, high = get_adjacent(grid, level, x, y)
+                min_level = min(min_level, low)
+                max_level = max(max_level, high)
+
+                count = sum([1 if val == "#" else 0 for val in adjacent])
+
                 if grid.get((level, x, y), ".") == "#" and count != 1:
                     grid[(level, x, y)] = "."
-                elif grid.get((level, x, y), ".") == "." and count == 2:
+                elif grid.get((level, x, y), ".") == "." and count in [1, 2]:
                     grid[(level, x, y)] = "#"
-    min_level -= 1
-    max_level += 1
+
 
 print(sum([1 if val == "#" else 0 for val in grid.values()]))
 
-pprint(grid)
+for level in range(min_level, max_level + 1):
+    print(level)
+    for y in range(5):
+        line = ""
+        for x in range(5):
+            line += grid.get((level, x, y), ".")
+        print(line)
